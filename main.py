@@ -7,6 +7,7 @@ no trailing newline), after validating it against the competition gate:
 """
 
 import os
+import sys
 
 LINE = "My calendar auto-declined this meeting on my behalf. I have decided to trust its judgment."
 
@@ -17,12 +18,15 @@ def _validate(line: str) -> None:
         raise ValueError("entry must be 1-200 characters")
     if not line.strip() or "\n" in line or "\r" in line:
         raise ValueError("entry must be a single non-blank line")
+    if any(ord(ch) < 32 and ch not in "\t" for ch in line):
+        raise ValueError("entry must not contain control characters")
 
 
 def main() -> None:
+    out_path = sys.argv[1] if len(sys.argv) > 1 else "/output/entry.txt"
     _validate(LINE)
-    os.makedirs("/output", exist_ok=True)
-    with open("/output/entry.txt", "w", encoding="utf-8") as f:
+    os.makedirs(os.path.dirname(out_path) or ".", exist_ok=True)
+    with open(out_path, "w", encoding="utf-8") as f:
         f.write(LINE)
 
 
